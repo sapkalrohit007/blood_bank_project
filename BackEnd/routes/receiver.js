@@ -14,6 +14,7 @@ if (mm < 10) {
   mm = "0" + mm;
 }
 var today = yyyy + "-" + mm + "-" + dd;
+
 router.get("/history/:id", async (req, res) => {
   let receiver_id = req.params.id;
 
@@ -23,10 +24,16 @@ router.get("/history/:id", async (req, res) => {
   where rec.receiver_id=${receiver_id}`;
   let result = await query(queryString);
   if (result.length == 0) {
-    res.status(404).send("The receiver with given id does not found!!");
+    let result1=[];
+    res.json(result);
+    // res.status(404).send("The receiver with given id does not found!!");
     return;
+  }else{
+    console.log("inside else");
+  // res.send(result);
+    res.json(result);
   }
-  res.send(result);
+  
 });
 
 router.post("/fulfill/:id/:type/:qty", async (req, res) => {
@@ -35,8 +42,17 @@ router.post("/fulfill/:id/:type/:qty", async (req, res) => {
   let quantity = req.params.qty;
 
   //Inserting to history_table
-  let queryStringH = `insert into history_table values(${receiver_id},1,"${blood_group}",${quantity},"${today}")`;
-  let fulfill_resultH = await query(queryStringH);
+
+
+  try {
+    let queryStringH = `insert into history_table values(${receiver_id},1,"${blood_group}",${quantity},"${today}")`;
+    let fulfill_resultH = await query(queryStringH);
+  } catch (error) {
+    let result1=[];
+    res.json(result1);
+    return;
+  }
+  
   //checking and fulfilling req quantity from bank_storage
   let original_req_qty = quantity;
   var flag = false;
@@ -74,18 +90,32 @@ router.post("/fulfill/:id/:type/:qty", async (req, res) => {
       }
     }
     if (flag) {
-      res.send(
-        "Receiver request is fulfilled and updated in receiver history table"
-      );
+      console.log("inside if");
+      let result1=[];
+      result1[0]={"message":"Your request is fullfilled."};
+      res.json(result1);
+      return;
+      // res.send(
+      //   "Receiver request is fulfilled and updated in receiver history table"
+      // );
     } else {
-      res.send("Can't ful fill");
+      console.log("else");
+      let result1=[];
+      res.json(result1);
+      return;
+      // res.send("Can't ful fill");
     }
   }
-  res
-    .status(200)
-    .send(
-      "Updated receiver details in receiver, history and emergency contact tables"
-    );
+  console.log("inside api");
+  let result=[];
+  result[0]={"message":"Your request is fullfilled."};
+  res.json(result);
+  return;
+  // res
+  //   .status(200)
+  //   .send(
+  //     "Updated receiver details in receiver, history and emergency contact tables"
+  //   );
 });
 
 router.get("/getblood/:type/:qty", async (req, res) => {
@@ -96,15 +126,20 @@ router.get("/getblood/:type/:qty", async (req, res) => {
   let originalQty = qty;
   var flag = false;
   if (result.length == 0) {
-    res
-      .status(404)
-      .send("We don't have enough Quantity to fulfill this request!!");
+    let result1=[];
+    res.json(result1);
+    // res
+    //   .status(404)
+    //   .send("We don't have enough Quantity to fulfill this request!!");
     return;
   }
   if (qty <= result[0].quantity) {
     result[0].quantity = Math.abs(result[0].quantity - qty); // SHould be reduced in the bank storge
     console.log("Available bankstorage", qty);
-    res.send("We have enough Quantity to fulfill this request from bank!!");
+    let result1=[]
+    result1[0]={"message":"We have enough Quantity to fulfill this request from bank!!"}
+    res.json(result1);
+    // res.send("We have enough Quantity to fulfill this request from bank!!");
   } else {
     qty = qty - result[0].quantity;
     for (let i = 1; i <= 4; i++) {
@@ -121,9 +156,14 @@ router.get("/getblood/:type/:qty", async (req, res) => {
       }
     }
     if (flag) {
-      res.send("We can ful fill this request");
+      // res.send("We can ful fill this request");
+      let result=[];
+      result[0]={"message":"We can full fill this request"}
+      res.json(result);
     } else {
-      res.send("We Can't ful fill this request");
+      let result=[];
+      // res.send("We Can't ful fill this request");
+      res.json(result);
     }
   }
 });
@@ -195,18 +235,28 @@ router.post("/fulfill", async (req, res) => {
         }
       }
       if (flag) {
-        res.send("Receiver request is fulfilled");
+        let result=[];
+        result[0]={"message":"Receiver request is fulfilled"}
+        // res.send("Receiver request is fulfilled");
+        res.json(result);
       } else {
-        res.send("Receiver request can not be fulfilled");
+        let result=[];
+        // res.send("Receiver request can not be fulfilled");
+        res.json(result);
       }
     }
-    res
-      .status(200)
-      .send(
-        "Updated receiver details in receiver, history, emergency contact and updated the corresponding inventory tables"
-      );
+    let result=[]
+    result[0]={"message":"Updated receiver details in receiver, history, emergency contact and updated the corresponding inventory tables"};
+    // res
+    //   .status(200)
+    //   .send(
+    //     "Updated receiver details in receiver, history, emergency contact and updated the corresponding inventory tables"
+    //   );
+    res.json(result);
   } else {
-    res.send("OOPS");
+    let result=[]
+    // res.send("OOPS");
+    res.json(result);
   }
 });
 

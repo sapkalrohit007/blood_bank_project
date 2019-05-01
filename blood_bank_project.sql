@@ -1,4 +1,3 @@
-
 drop database if exists blood_bank_project;
 create database blood_bank_project;
 use blood_bank_project;
@@ -128,6 +127,7 @@ create table camp_collection(
 	 camp_id		int, 
 	 blood_group	varchar(20),
      quantity       int,
+     isTransfered   bool,
 	 primary key (camp_id,blood_group),
 	 foreign key (camp_id) references donation_camp(camp_id)
 		on delete cascade
@@ -332,31 +332,37 @@ insert into donates_to_camp values(9,2,3);
 insert into donates_to_camp values(10,3,2);
 
 
-insert into camp_collection values(1,'A+',35);
-insert into camp_collection values(1,'A-',20);
-insert into camp_collection values(1,'B+',21);
-insert into camp_collection values(1,'B-',32);
-insert into camp_collection values(1,'O+',40);
-insert into camp_collection values(1,'O-',25);
-insert into camp_collection values(1,'AB+',42);
-insert into camp_collection values(1,'AB-',34);
+insert into camp_collection values(1,'A+',35,false);
+insert into camp_collection values(1,'A-',20,false);
+insert into camp_collection values(1,'B+',21,false);
+insert into camp_collection values(1,'B-',32,false);
+insert into camp_collection values(1,'O+',40,false);
+insert into camp_collection values(1,'O-',25,false);
+insert into camp_collection values(1,'AB+',42,false);
+insert into camp_collection values(1,'AB-',34,false);
 
 
-insert into camp_collection values(2,'A+',41);
-insert into camp_collection values(2,'A-',10);
-insert into camp_collection values(2,'B+',24);
-insert into camp_collection values(2,'B-',20);
-insert into camp_collection values(2,'O+',28);
-insert into camp_collection values(2,'O-',29);
-insert into camp_collection values(2,'AB+',46);
-insert into camp_collection values(2,'AB-',28);
+insert into camp_collection values(2,'A+',41,false);
+insert into camp_collection values(2,'A-',10,false);
+insert into camp_collection values(2,'B+',24,false);
+insert into camp_collection values(2,'B-',20,false);
+insert into camp_collection values(2,'O+',28,false);
+insert into camp_collection values(2,'O-',29,false);
+insert into camp_collection values(2,'AB+',46,false);
+insert into camp_collection values(2,'AB-',28,false);
 
-insert into camp_collection values(3,'A+',21);
-insert into camp_collection values(3,'A-',28);
-insert into camp_collection values(3,'B+',45);
-insert into camp_collection values(3,'B-',34);
-insert into camp_collection values(3,'O+',27);
-insert into camp_collection values(3,'O-',26);
-insert into camp_collection values(3,'AB+',20);
-insert into camp_collection values(3,'AB-',15);
+insert into camp_collection values(3,'A+',21,false);
+insert into camp_collection values(3,'A-',28,false);
+insert into camp_collection values(3,'B+',45,false);
+insert into camp_collection values(3,'B-',34,false);
+insert into camp_collection values(3,'O+',27,false);
+insert into camp_collection values(3,'O-',26,false);
+insert into camp_collection values(3,'AB+',20,false);
+insert into camp_collection values(3,'AB-',15,false);
 
+
+
+
+
+-- select * from history_table;
+-- select * from emergency_contact;

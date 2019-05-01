@@ -1,55 +1,59 @@
-const express=require('express');
+const express = require('express');
 const router = express.Router();
-const query=require('../dbConnection');
+const query = require('../dbConnection');
 
 
-router.post('/bloodbank',async(req,res)=>{
-    let donar_name=req.body.donar_name;
-    let email=req.body.email;
-    let donar_address=req.body.donar_address;
-    let blood_group=req.body.blood_group;
-    let quantity=req.body.quantity;
-    let queryString=`select * from donar where email="${email}"`;
-    let donar_result=await query(queryString);
-    if(donar_result.length==0){
-        let insertIntoDonarQueryString=`insert into donar(email,donar_address,blood_group,donar_name) values("${email}","${donar_address}","${blood_group}","${donar_name}")`;
-        let result=await query(insertIntoDonarQueryString);
-        let insertIntoDonatesToBank=`insert into donates_to_bank(donar_id,bank_code,quantity,date) values(${result.insertId},1,${quantity},${Date.now()})`;
-        let result_insert_into_bank=await query(insertIntoDonatesToBank);
-        let insertIntoBank=`update blood_bank_storage set quantity=quantity+${quantity} where blood_group='${blood_group}'`;
-        let insertIntoBank_result=query(insertIntoBank);
-        res.send("Thanks for Donating blood!!!!!");
+router.post("/bloodbank/new",async(req,res)=>{
+    let donar_name = req.body.donar_name;
+    let email = req.body.email;
+    let donar_address = req.body.donar_address;
+    let blood_group = req.body.blood_group;
+    let quantity = req.body.quantity;
+    let queryString = `insert into donar(donar_name,email,donar_address,blood_group) values ("${donar_name}","${email}","${donar_address}","${blood_group}")`;
+    let result = await query(queryString);
+    let donar_id=result['insertId'];
+    let newdate = new Date();
+    newdate = newdate.toISOString().slice(0, 10);
+    queryString=`insert into donates_to_bank values(${donar_id},1,${quantity},"${newdate}")`;
+    result=await query(queryString);
+    queryString=`update blood_bank_storage set quantity=quantity+${quantity} where bank_code=1 and blood_group="${blood_group}"`;
+    result=await query(queryString);
+    res.json([{"message":"Thanks for donating to bank"}]);
+})
+
+router.post("/bloodbank/old/:id/:quantity",async(req,res)=>{
+    let donar_id=req.params.id;
+    let quantity=req.params.quantity;
+    let queryString=`select * from donar where donar_id=${donar_id}`;
+    let result=await query(queryString);
+    
+    if(result.length==0){
+        res.json([{"message":"Incorrect donar ID"}]);
     }else{
-        // console.log(donar_result  donar_id);
-        console.log(donar_result[0].donar_id);
-        console.log("inside else");
-        newdate = new Date();
-        newdate = newdate.toISOString().slice(0,10);
+        let blood_group=result[0]["blood_group"];
+        let newdate = new Date();
+        newdate = newdate.toISOString().slice(0, 10);
+        queryString=`insert into donates_to_bank values(${donar_id},1,${quantity},"${newdate}")`;
         try{
-            let insertIntoDonatesToBank=`insert into donates_to_bank(donar_id,bank_code,quantity,date) values(${donar_result[0].donar_id},1,${quantity},"${newdate}")`;
-            console.log(insertIntoDonatesToBank);
-            let result_insert_into_bank=await query(insertIntoDonatesToBank);
+            console.log(queryString);
+            result=await query(queryString);
+            console.log("after");
+            queryString=`update blood_bank_storage set quantity=quantity+${quantity} where bank_code=1 and blood_group="${blood_group}"`;
+            result=await query(queryString);
+            res.json([{"message":"Thanks for donating to bank"}]);
         }catch{
-            res.send("You can not donate on the same day...Please Donate after 3 months");
-            return;
+            res.json([{"message":"you can not donate blood on same day please come after 3 months"}]);
         }
-        console.log("after");
-        let insertIntoBank=`update blood_bank_storage set quantity=quantity+${quantity} where blood_group='${blood_group}'`;
-        let insertIntoBank_result=query(insertIntoBank);
-        // res.send("Thanks for Donating blood!!!!!");
-        res.send("Thanks for Donating blood!!!");
     }
-});
+})
 
 
 
 
 
 
-
-
-router.post('/bloodbank/',async(req,res)=>{
+router.post('/bloodbank/', async (req, res) => {
 
 });
 
-module.exports=router;
+module.exports = router;
